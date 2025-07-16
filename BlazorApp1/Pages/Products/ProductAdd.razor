@@ -1,63 +1,11 @@
 ﻿@page "/addproduct"
-@inject NavigationManager Navigation
-@inject BlazorApp1.Data.NorthwindContext _context
-
-@using Microsoft.EntityFrameworkCore
-@using System.ComponentModel.DataAnnotations
 @using BlazorApp1.Data
+@using BlazorApp1.Components
 
 <h3>Yeni Ürün Ekle</h3>
 
-<EditForm Model="@newProduct" OnValidSubmit="@HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-
-    <div class="mb-3">
-        <label>Ürün Adı</label>
-        <InputText class="form-control" @bind-Value="newProduct.ProductName" />
-        <ValidationMessage For="@(() => newProduct.ProductName)" />
-    </div>
-
-    <div class="mb-3">
-        <label>Birim Fiyat</label>
-        <InputNumber class="form-control" @bind-Value="newProduct.UnitPrice" />
-        <ValidationMessage For="@(() => newProduct.UnitPrice)" />
-    </div>
-
-    <div class="mb-3">
-        <label>Stok Miktarı</label>
-        <InputNumber class="form-control" @bind-Value="newProduct.UnitsInStock" />
-        <ValidationMessage For="@(() => newProduct.UnitsInStock)" />
-    </div>
-
-    <div class="mb-3">
-        <label>Kategori</label>
-        <InputSelect class="form-select" @bind-Value="newProduct.CategoryID">
-            <option value="">Seçiniz</option>
-            @foreach (var category in categories)
-            {
-                <option value="@category.CategoryID">@category.CategoryName</option>
-            }
-        </InputSelect>
-        <ValidationMessage For="@(() => newProduct.CategoryID)" />
-    </div>
-
-    <button type="submit" class="btn btn-primary">Kaydet</button>
-</EditForm>
+<ProductForm Model="newProduct" IsNew="true" />
 
 @code {
     Product newProduct = new();
-    List<Category> categories = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        categories = await _context.Categories.ToListAsync();
-    }
-
-    private async Task HandleValidSubmit()
-    {
-        _context.Products.Add(newProduct);
-        await _context.SaveChangesAsync();
-        Navigation.NavigateTo("/products");
-    }
 }

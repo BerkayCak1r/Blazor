@@ -1,0 +1,11 @@
+﻿<input type="text" @bind="SearchTerm" @bind:event="oninput" placeholder="Ürün adı ara..." class="form-control mb-3" />
+
+@code {
+    [Parameter] public string SearchTerm { get; set; } = "";
+    [Parameter] public EventCallback<string> SearchTermChanged { get; set; }
+
+    private async Task OnSearchChanged(ChangeEventArgs e)
+    {
+        await SearchTermChanged.InvokeAsync(SearchTerm);
+    }
+}

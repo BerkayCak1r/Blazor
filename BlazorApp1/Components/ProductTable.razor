@@ -1,0 +1,33 @@
+﻿@using BlazorApp1.Data
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Ad</th>
+            <th>Fiyat</th>
+            <th>Stok</th>
+            <th>Kategori</th>
+            <th>İşlem</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Products)
+        {
+            <tr>
+                <td>@item.ProductName</td>
+                <td>@item.UnitPrice</td>
+                <td>@item.UnitsInStock</td>
+                <td>@item.Category?.CategoryName</td>
+                <td>
+                    <a class="btn btn-sm btn-warning me-1" href="/editproduct/@item.ProductID">Düzenle</a>
+                    <button class="btn btn-sm btn-danger" @onclick="() => OnDelete.InvokeAsync(item.ProductID)">Sil</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter] public List<Product> Products { get; set; } = new();
+    [Parameter] public EventCallback<int> OnDelete { get; set; }
+}

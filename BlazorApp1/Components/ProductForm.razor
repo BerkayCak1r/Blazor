@@ -1,0 +1,63 @@
+﻿@using BlazorApp1.Data
+@using Microsoft.EntityFrameworkCore
+@inject NavigationManager Navigation
+@inject BlazorApp1.Data.NorthwindContext _context
+
+<EditForm Model="@Model" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label>Ürün Adı</label>
+        <InputText class="form-control" @bind-Value="Model.ProductName" />
+        <ValidationMessage For="@(() => Model.ProductName)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Birim Fiyat</label>
+        <InputNumber class="form-control" @bind-Value="Model.UnitPrice" />
+        <ValidationMessage For="@(() => Model.UnitPrice)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Stok Miktarı</label>
+        <InputNumber class="form-control" @bind-Value="Model.UnitsInStock" />
+        <ValidationMessage For="@(() => Model.UnitsInStock)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Kategori</label>
+        <InputSelect class="form-select" @bind-Value="Model.CategoryID">
+            <option value="">Seçiniz</option>
+            @foreach (var category in Categories)
+            {
+                <option value="@category.CategoryID">@category.CategoryName</option>
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => Model.CategoryID)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+</EditForm>
+
+@code {
+    [Parameter] public Product Model { get; set; } = new();
+    [Parameter] public bool IsNew { get; set; } = true;
+
+    List<Category> Categories = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Categories = await _context.Categories.ToListAsync();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (IsNew)
+        {
+            _context.Products.Add(Model);
+        }
+        await _context.SaveChangesAsync();
+        Navigation.NavigateTo("/products");
+    }
+}

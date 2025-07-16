@@ -2,62 +2,18 @@
 @inject BlazorApp1.Data.NorthwindContext _context
 @using BlazorApp1.Data
 @using Microsoft.EntityFrameworkCore
+@using BlazorApp1.Components
 
 <h3>Ürün Listesi</h3>
 
+<SearchBar SearchTerm="@searchTerm" SearchTermChanged="@OnSearchChanged" />
 
-<input type="text" @bind="searchTerm" @bind:event="oninput" placeholder="Ürün adı ara..." class="form-control mb-3" />
-
-
-
-@if (products == null)
-{
-    <p>Yükleniyor...</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Ad</th>
-                <th>Fiyat</th>
-                <th>Stok</th>
-                <th>Kategori</th>
-                <th>İşlem</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in products)
-            {
-                <tr>
-                    <td>@item.ProductName</td>
-                    <td>@item.UnitPrice</td>
-                    <td>@item.UnitsInStock</td>
-                    <td>@item.Category?.CategoryName</td>
-                    <td>
-                        <a class="btn btn-sm btn-warning me-1" href="/editproduct/@item.ProductID">Düzenle</a>
-                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteProduct(item.ProductID)">Sil</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+<ProductTable Products="products" OnDelete="DeleteProduct" />
 
 @code {
     List<Product> products = new();
     List<Product> allProducts = new();
-
-    string _searchTerm = "";
-    string searchTerm
-    {
-        get => _searchTerm;
-        set
-        {
-            _searchTerm = value;
-            SearchProducts();
-        }
-    }
+    string searchTerm = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,10 +31,16 @@ else
         }
 
         allProducts = await _context.Products.Include(p => p.Category).ToListAsync();
-        SearchProducts();
+        FilterProducts();
     }
 
-    private void SearchProducts()
+    private void OnSearchChanged(string term)
+    {
+        searchTerm = term;
+        FilterProducts();
+    }
+
+    private void FilterProducts()
     {
         if (string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -92,4 +54,3 @@ else
         }
     }
 }
-
