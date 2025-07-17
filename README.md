@@ -1,30 +1,35 @@
-# Birinci seviye başlık
-## İkinci seviye başlık
-### Üçüncü seviye başlık
+# Northwind Blazor Uygulaması
 
-**Kalın metin**
+Bu proje, Northwind veritabanı ile entegre çalışan basit bir ürün yönetim sistemidir. Blazor Server ile geliştirilen kullanıcı arayüzü, ASP.NET Web API ile haberleşerek veritabanı işlemlerini gerçekleştirir.
 
-*İtalik metin*
+## Katmanlar
 
-~~Üstü çizili~~
+- **Northwind.Core** → Entity (Model) sınıflarını barındırır. (`Product`, `Category`)
+- **Northwind.Data** → EF Core `DbContext` yapılandırmasını içerir.
+- **WebAPI** → Ürün ve kategori işlemlerini sağlayan RESTful API'yi barındırır.
+- **BlazorApp** → Ürün listeleme, ekleme, güncelleme ve silme işlemlerinin yapıldığı Blazor Server arayüzüdür.
 
-`inline kod`
+## Temel Özellikler
 
-> Bu bir alıntıdır.
+- Ürünleri listeleme
+- Ürün arama ve filtreleme
+- Yeni ürün ekleme
+- Ürün güncelleme ve silme
+- Kategori seçimi
+- API ile iletişim (HttpClient)
+- JSON işlemleri `System.Text.Json` ile yapılmaktadır
 
-- Madde 1
-- Madde 2
+## Gereksinimler
 
-1. İlk
-2. İkinci
+- .NET 7 SDK
+- Visual Studio 2022+
+- SQL Server (Northwind veritabanı yüklü)
 
-[Google'a git](https://www.google.com)
+## Çalıştırma
 
-![Örnek görsel](https://via.placeholder.com/150)
+1. **WebAPI** ve **BlazorApp** projeleri aynı anda çalıştırılmalıdır.
+2. `appsettings.json` içindeki bağlantı dizesi güncel olmalıdır.
+3. API URL’si BlazorApp içinde `HttpClient` için doğru tanımlanmalıdır.
 
 ---
 
-```python
-# Python kod bloğu örneği
-def selamla():
-    print("Merhaba!")
