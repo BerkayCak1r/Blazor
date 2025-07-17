@@ -1,36 +1,58 @@
 ﻿@page "/products"
-@inject BlazorApp1.Data.NorthwindContext _context
+@inject BlazorApp1.Services.ProductService ProductService
+
 @using BlazorApp1.Data
-@using Microsoft.EntityFrameworkCore
 @using BlazorApp1.Components
 
 <h3>Ürün Listesi</h3>
 
-<SearchBar SearchTerm="@searchTerm" SearchTermChanged="@OnSearchChanged" />
-
-<ProductTable Products="products" OnDelete="DeleteProduct" />
+@if (isLoading)
+{
+    <p>Yükleniyor...</p>
+}
+else if (loadError != null)
+{
+    <p class="text-danger">Hata: @loadError</p>
+}
+else if (products == null || !products.Any())
+{
+    <p>Ürün bulunamadı.</p>
+}
+else
+{
+    <SearchBar SearchTerm="@searchTerm" SearchTermChanged="@OnSearchChanged" />
+    <ProductTable Products="products" OnDelete="DeleteProduct" />
+}
 
 @code {
     List<Product> products = new();
     List<Product> allProducts = new();
     string searchTerm = "";
 
+    bool isLoading = true;
+    string? loadError;
+
     protected override async Task OnInitializedAsync()
     {
-        allProducts = await _context.Products.Include(p => p.Category).ToListAsync();
-        products = new List<Product>(allProducts);
+        try
+        {
+            allProducts = await ProductService.GetProductsAsync();
+            products = new List<Product>(allProducts);
+        }
+        catch (Exception ex)
+        {
+            loadError = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private async Task DeleteProduct(int id)
     {
-        var product = await _context.Products.FindAsync(id);
-        if (product != null)
-        {
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
-        }
-
-        allProducts = await _context.Products.Include(p => p.Category).ToListAsync();
+        await ProductService.DeleteProductAsync(id);
+        allProducts = await ProductService.GetProductsAsync();
         FilterProducts();
     }
 

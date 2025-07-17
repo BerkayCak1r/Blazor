@@ -1,7 +1,6 @@
 ﻿@using BlazorApp1.Data
-@using Microsoft.EntityFrameworkCore
 @inject NavigationManager Navigation
-@inject BlazorApp1.Data.NorthwindContext _context
+@inject BlazorApp1.Services.ProductService ProductService
 
 <EditForm Model="@Model" OnValidSubmit="@HandleValidSubmit">
     <DataAnnotationsValidator />
@@ -48,16 +47,20 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Categories = await _context.Categories.ToListAsync();
+        Categories = await ProductService.GetCategoriesAsync();
     }
 
     private async Task HandleValidSubmit()
     {
         if (IsNew)
         {
-            _context.Products.Add(Model);
+            await ProductService.AddProductAsync(Model);
         }
-        await _context.SaveChangesAsync();
-        Navigation.NavigateTo("/products");
+        else
+        {
+            await ProductService.UpdateProductAsync(Model.ProductID, Model);
+        }
+
+        Navigation.NavigateTo("/products", forceLoad: true);
     }
 }

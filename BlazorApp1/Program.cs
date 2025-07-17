@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.EntityFrameworkCore;
-using BlazorApp1.Data; // ← Namespace projenle uyumlu olmalı
+﻿using BlazorApp1.Services;
+//using Microsoft.AspNetCore.Components;
+//using Microsoft.AspNetCore.Components.Web;
+//using Microsoft.EntityFrameworkCore;
+//using BlazorApp1.Data; // ← Namespace projenle uyumlu olmalı
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,9 +10,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7097/") });
+builder.Services.AddScoped<ProductService>();
+
+
 // EF Core bağlantısı
-builder.Services.AddDbContext<NorthwindContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("NorthwindConnection")));
+//builder.Services.AddDbContext<NorthwindContext>(options =>
+//options.UseSqlServer(builder.Configuration.GetConnectionString("NorthwindConnection")));
 
 var app = builder.Build();
 

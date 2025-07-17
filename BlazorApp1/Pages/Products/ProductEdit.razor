@@ -1,6 +1,6 @@
 ﻿@page "/editproduct/{id:int}"
-@inject BlazorApp1.Data.NorthwindContext _context
 @inject NavigationManager Navigation
+@inject BlazorApp1.Services.ProductService ProductService
 @using BlazorApp1.Data
 @using BlazorApp1.Components
 
@@ -23,7 +23,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        product = await _context.Products.FindAsync(id);
+        product = await ProductService.GetProductByIdAsync(id);
         if (product == null)
         {
             Navigation.NavigateTo("/products");
