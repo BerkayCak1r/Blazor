@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebApplication1.Data; // ← NorthwindContext burada
-using WebApplication1.Models; // ← Category modeli burada
+//using WebApplication1.Data; // ← NorthwindContext burada
+//using WebApplication1.Models; // ← Category modeli burada
+using Northwind.Core.Entities;
+using Northwind.Data;
+
 
 namespace WebApplication1.Controllers
 {

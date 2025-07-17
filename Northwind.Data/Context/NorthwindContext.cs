@@ -1,8 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using WebApplication1.Models;
+//using System.Collections.Generic;
+//using WebApplication1.Models;
+using Northwind.Core.Entities; // ← Product ve Category için
 
-namespace WebApplication1.Data
+
+
+
+
+namespace Northwind.Data
+
 {
     public class NorthwindContext : DbContext
     {
