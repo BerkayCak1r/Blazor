@@ -12,6 +12,7 @@ builder.Services.AddServerSideBlazor();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7097/") });
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<OrderService>();
 
 
 // EF Core bağlantısı

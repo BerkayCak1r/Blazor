@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-//using WebApplication1.Data;
-//using WebApplication1.Models;
 using Northwind.Core.Entities;
 using Northwind.Data;
-
-
-
+using WebApplication1.Models;
+using WebApplication1.Models.Products;
 
 namespace WebApplication1.Controllers
 {
@@ -25,27 +22,66 @@ namespace WebApplication1.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
-            return await _context.Products.Include(p => p.Category).ToListAsync();
+            return await _context.Products
+                .Include(p => p.Category)
+                .ToListAsync();
         }
 
         // GET: api/products/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
+        public async Task<ActionResult<ServiceResponse<Product>>> GetProduct(int id)
         {
-            var product = await _context.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.ProductID == id);
-
-            if (product == null)
+            if (id <= 0)
             {
-                return NotFound();
+                return BadRequest(new ServiceResponse<Product>
+                {
+                    Error = "Geçerli bir ürün ID'si girilmelidir."
+                });
             }
 
-            return product;
+            try
+            {
+                var product = await _context.Products
+                    .Include(p => p.Category)
+                    .FirstOrDefaultAsync(p => p.ProductID == id);
+
+                if (product == null)
+                {
+                    return NotFound(new ServiceResponse<Product>
+                    {
+                        Error = "Ürün bulunamadı"
+                    });
+                }
+
+                return Ok(new ServiceResponse<Product>
+                {
+                    Data = product
+                });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new ServiceResponse<Product>
+                {
+                    Error = "Teknik bir sorun oluştu"
+                });
+            }
         }
 
         // POST: api/products
         [HttpPost]
-        public async Task<ActionResult<Product>> PostProduct(Product product)
+        public async Task<ActionResult<Product>> PostProduct(CreateProductRequest request)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var product = new Product
+            {
+                ProductName = request.ProductName,
+                UnitPrice = request.UnitPrice,
+                UnitsInStock = request.UnitsInStock,
+                CategoryID = request.CategoryID
+            };
+
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
@@ -94,7 +130,7 @@ namespace WebApplication1.Controllers
 
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
-
+                
             return NoContent();
         }
 

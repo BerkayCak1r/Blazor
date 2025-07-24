@@ -18,5 +18,9 @@ namespace Northwind.Data
 
         public DbSet<Product> Products => Set<Product>();
         public DbSet<Category> Categories => Set<Category>();
+        public DbSet<Order> Orders => Set<Order>();
+        public DbSet<Employee> Employees => Set<Employee>();
+
+
     }
 }

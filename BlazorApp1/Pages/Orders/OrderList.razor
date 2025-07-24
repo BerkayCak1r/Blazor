@@ -1,0 +1,105 @@
+﻿@page "/orders"
+@inject BlazorApp1.Services.OrderService OrderService
+@using BlazorApp1.ViewModels
+@using BlazorApp1.Components
+
+<h3>Sipariş Listesi</h3>
+
+<SearchBar SearchTerm="@searchTerm" SearchTermChanged="@OnSearchChanged" />
+
+@if (isLoading)
+{
+    <p>Yükleniyor...</p>
+}
+else if (orders == null || !orders.Items.Any())
+{
+    <p>Sipariş bulunamadı.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Müşteri ID</th>
+                <th>Çalışan</th>
+                <th>Tarih</th>
+                <th>Ülke</th>
+                <th>Şehir</th>
+                <th>Kargo Ücreti</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in orders.Items)
+            {
+                <tr>
+                    <td>@order.OrderID</td>
+                    <td>@order.CustomerID</td>
+                    <td>@order.EmployeeName</td>
+                    <td>@order.OrderDate?.ToShortDateString()</td>
+                    <td>@order.ShipCountry</td>
+                    <td>@order.ShipCity</td>
+                    <td>@order.Freight?.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="d-flex justify-content-between align-items-center">
+        <button class="btn btn-outline-secondary" @onclick="PreviousPage" disabled="@(!CanGoPrevious)">← Önceki</button>
+        <span>Sayfa @pageNumber / @totalPages</span>
+        <button class="btn btn-outline-secondary" @onclick="NextPage" disabled="@(!CanGoNext)">Sonraki →</button>
+    </div>
+}
+
+@code {
+    PagedResult<OrderViewModel> orders = new();
+    bool isLoading = true;
+
+    int pageNumber = 1;
+    int pageSize = 10;
+    string searchTerm = "";
+
+    int totalPages => (int)Math.Ceiling((double)orders.TotalCount / pageSize);
+
+    bool CanGoNext => pageNumber < totalPages;
+    bool CanGoPrevious => pageNumber > 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrders();
+    }
+
+    private async Task LoadOrders()
+    {
+        isLoading = true;
+        orders = await OrderService.GetOrdersAsync(pageNumber, pageSize, searchTerm);
+        isLoading = false;
+    }
+
+    private async Task NextPage()
+    {
+        if (CanGoNext)
+        {
+            pageNumber++;
+            await LoadOrders();
+        }
+    }
+
+    private async Task PreviousPage()
+    {
+        if (CanGoPrevious)
+        {
+            pageNumber--;
+            await LoadOrders();
+        }
+    }
+
+    private async Task OnSearchChanged(string term)
+    {
+        Console.WriteLine($"[Blazor] Arama tetiklendi: {term}");
+        searchTerm = term;
+        pageNumber = 1;
+        await LoadOrders();
+    }
+}

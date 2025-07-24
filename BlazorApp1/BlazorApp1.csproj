@@ -14,8 +14,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Northwind.Core\Northwind.Core.csproj" />
-  </ItemGroup>
-
 </Project>
