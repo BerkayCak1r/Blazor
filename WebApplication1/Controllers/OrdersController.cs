@@ -53,8 +53,6 @@ namespace WebApplication1.Controllers
                 );
             }
 
-
-
             var totalCount = await query.CountAsync();
 
             var pagedData = await query
@@ -83,6 +81,72 @@ namespace WebApplication1.Controllers
             };
 
             return Ok(result);
+        }
+
+        // GET: api/orders/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Order>> GetOrderById(int id)
+        {
+            var order = await _context.Orders
+                .Include(o => o.Employee)
+                .FirstOrDefaultAsync(o => o.OrderID == id);
+
+            if (order == null)
+                return NotFound();
+
+            return Ok(order);
+        }
+
+        // POST: api/orders
+        [HttpPost]
+        public async Task<IActionResult> CreateOrder([FromBody] Order order)
+        {
+            if (order == null)
+                return BadRequest("Sipariş verisi eksik.");
+
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetOrderById), new { id = order.OrderID }, order);
+        }
+
+        // PUT: api/orders/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateOrder(int id, [FromBody] Order updatedOrder)
+        {
+            if (id != updatedOrder.OrderID)
+                return BadRequest("ID uyuşmazlığı.");
+
+            var existingOrder = await _context.Orders.FindAsync(id);
+            if (existingOrder == null)
+                return NotFound();
+
+            _context.Entry(existingOrder).CurrentValues.SetValues(updatedOrder);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return StatusCode(500, "Veritabanı güncelleme hatası.");
+            }
+
+            return NoContent();
+        }
+
+        // DELETE: api/orders/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteOrder(int id)
+        {
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
+                return NotFound();
+
+            _context.Orders.Remove(order);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }
