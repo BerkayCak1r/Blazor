@@ -20,9 +20,14 @@ namespace WebApplication1.Controllers
         }
 
         // GET: api/orders?search=abc&page=1&pageSize=10
+        // + startDate, endDate, country, city filtreleri eklendi
         [HttpGet]
         public async Task<ActionResult<PagedResult<OrderViewModel>>> GetOrders(
             [FromQuery] string? search = null,
+            [FromQuery] DateTime? startDate = null,
+            [FromQuery] DateTime? endDate = null,
+            [FromQuery] string? country = null,
+            [FromQuery] string? city = null,
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10)
         {
@@ -33,25 +38,45 @@ namespace WebApplication1.Controllers
                 .Include(o => o.Employee)
                 .AsQueryable();
 
-            // Arama filtresi
+            // Arama filtresi (CustomerID + EmployeeName)
             if (!string.IsNullOrWhiteSpace(search))
             {
-                DateTime? parsedDate = null;
-                string[] formats = { "d.M.yyyy", "dd.MM.yyyy", "yyyy-MM-dd", "yyyy.MM.dd" };
-
-                if (DateTime.TryParseExact(search, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var tempDate))
-                    parsedDate = tempDate;
-                else if (DateTime.TryParse(search, out var fallbackDate))
-                    parsedDate = fallbackDate;
-
                 var loweredSearch = search.Trim().ToLower();
 
                 query = query.Where(o =>
                     (o.CustomerID != null && o.CustomerID.Trim().ToLower().Contains(loweredSearch)) ||
-                    (o.Employee != null && (o.Employee.FirstName + " " + o.Employee.LastName).ToLower().Contains(loweredSearch)) ||
-                    (parsedDate != null && EF.Functions.DateDiffDay(o.OrderDate, parsedDate.Value) == 0)
+                    (o.Employee != null && (o.Employee.FirstName + " " + o.Employee.LastName).ToLower().Contains(loweredSearch))
                 );
+
+                // DateTime? parsedDate = null;
+                //string[] formats = { "d.M.yyyy", "dd.MM.yyyy", "yyyy-MM-dd", "yyyy.MM.dd" };
+
+                // if (DateTime.TryParseExact(search, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var tempDate))
+                //     parsedDate = tempDate;
+                //  else if (DateTime.TryParse(search, out var fallbackDate))
+                //
+                // var loweredSearch = search.Trim().ToLower();
+
+                // query = query.Where(o =>
+                //    (o.CustomerID != null && o.CustomerID.Trim().ToLower().Contains(loweredSearch)) ||
+                //    (o.Employee != null && (o.Employee.FirstName + " " + o.Employee.LastName).ToLower().Contains(loweredSearch)) ||
+                //    (parsedDate != null && EF.Functions.DateDiffDay(o.OrderDate, parsedDate.Value) == 0)
+                //);
             }
+
+            // Tarih aralığı filtresi
+            if (startDate != null)
+                query = query.Where(o => o.OrderDate >= startDate);
+            if (endDate != null)
+                query = query.Where(o => o.OrderDate <= endDate);
+
+            // Ülke filtresi
+            if (!string.IsNullOrWhiteSpace(country))
+                query = query.Where(o => o.ShipCountry != null && o.ShipCountry.ToLower() == country.ToLower());
+
+            // Şehir filtresi
+            if (!string.IsNullOrWhiteSpace(city))
+                query = query.Where(o => o.ShipCity != null && o.ShipCity.ToLower() == city.ToLower());
 
             var totalCount = await query.CountAsync();
 

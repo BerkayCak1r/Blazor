@@ -7,6 +7,22 @@
 
 <SearchBar SearchTerm="@searchTerm" SearchTermChanged="@OnSearchChanged" />
 
+<div class="filters mt-2">
+    <label>Başlangıç Tarihi:</label>
+    <input type="date" @bind="startDate" />
+
+    <label>Bitiş Tarihi:</label>
+    <input type="date" @bind="endDate" />
+
+    <label>Ülke:</label>
+    <input type="text" @bind="country" placeholder="Ülke" />
+
+    <label>Şehir:</label>
+    <input type="text" @bind="city" placeholder="Şehir" />
+
+    <button class="btn btn-primary btn-sm" @onclick="ApplyFilters">Filtrele</button>
+</div>
+
 @if (isLoading)
 {
     <p>Yükleniyor...</p>
@@ -60,8 +76,12 @@ else
     int pageSize = 10;
     string searchTerm = "";
 
-    int totalPages => (int)Math.Ceiling((double)orders.TotalCount / pageSize);
+    DateTime? startDate;
+    DateTime? endDate;
+    string country = "";
+    string city = "";
 
+    int totalPages => (int)Math.Ceiling((double)orders.TotalCount / pageSize);
     bool CanGoNext => pageNumber < totalPages;
     bool CanGoPrevious => pageNumber > 1;
 
@@ -73,8 +93,14 @@ else
     private async Task LoadOrders()
     {
         isLoading = true;
-        orders = await OrderService.GetOrdersAsync(pageNumber, pageSize, searchTerm);
+        orders = await OrderService.GetOrdersAsync(pageNumber, pageSize, searchTerm, startDate, endDate, country, city);
         isLoading = false;
+    }
+
+    private async Task ApplyFilters()
+    {
+        pageNumber = 1;
+        await LoadOrders();
     }
 
     private async Task NextPage()
@@ -97,7 +123,6 @@ else
 
     private async Task OnSearchChanged(string term)
     {
-        Console.WriteLine($"[Blazor] Arama tetiklendi: {term}");
         searchTerm = term;
         pageNumber = 1;
         await LoadOrders();
