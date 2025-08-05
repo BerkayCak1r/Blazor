@@ -10,8 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
-//Todo: api adresini appsettings.json dosyasına al
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7097/") });
+
+var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"];
+if (string.IsNullOrWhiteSpace(apiBaseUrl)) //Api adresi null kontrolü
+    throw new InvalidOperationException("API Base URL appsettings.json içinde tanımlı değil.");
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
+
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<OrderService>();
 
