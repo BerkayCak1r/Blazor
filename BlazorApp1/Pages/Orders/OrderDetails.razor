@@ -20,13 +20,19 @@ else
         <p><strong>Çalışan:</strong> @order.EmployeeName</p>
         <p><strong>Sipariş Tarihi:</strong> @order.OrderDate?.ToShortDateString()</p>
         <p><strong>Gerekli Tarih:</strong> @order.RequiredDate?.ToShortDateString()</p>
-        <p><strong>Kargolandığı Tarih:</strong> @order.ShippedDate?.ToShortDateString()</p>
         <p><strong>Ülke:</strong> @order.ShipCountry</p>
         <p><strong>Şehir:</strong> @order.ShipCity</p>
         <p><strong>Toplam Tutar:</strong> @order.TotalAmount.ToString("C")</p>
     </div>
 
     <h5>Ürünler</h5>
+
+    @if (order.OrderDetails == null || !order.OrderDetails.Any())
+    {
+        <p class="text-danger">Bu siparişe ait ürün bulunamadı.</p>
+    }
+    else
+    {
     <table class="table table-striped">
         <thead>
             <tr>
@@ -34,6 +40,7 @@ else
                 <th>Ürün Adı</th>
                 <th>Birim Fiyat</th>
                 <th>Adet</th>
+                <th>Kargo Ücreti</th>
                 <th>İndirim</th>
             </tr>
         </thead>
@@ -45,11 +52,13 @@ else
                     <td>@item.ProductName</td>
                     <td>@item.UnitPrice.ToString("C")</td>
                     <td>@item.Quantity</td>
-                    <td>@item.Discount:P</td>
+                    <td>@order.Freight?.ToString("C")</td>
+                    <td>@($"{item.Discount * 100:F0}%")</td>
                 </tr>
             }
         </tbody>
     </table>
+    }
 }
 
 @code {
