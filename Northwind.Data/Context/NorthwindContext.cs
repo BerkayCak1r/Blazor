@@ -1,26 +1,36 @@
 ﻿using Microsoft.EntityFrameworkCore;
-//using System.Collections.Generic;
-//using WebApplication1.Models;
-using Northwind.Core.Entities; // ← Product ve Category için
-
-
-
-
+using Northwind.Core.Entities;
 
 namespace Northwind.Data
-
 {
     public class NorthwindContext : DbContext
     {
-        public NorthwindContext(DbContextOptions<NorthwindContext> options) : base(options)
+        public NorthwindContext(DbContextOptions<NorthwindContext> options)
+            : base(options)
         {
         }
 
-        public DbSet<Product> Products => Set<Product>();
-        public DbSet<Category> Categories => Set<Category>();
-        public DbSet<Order> Orders => Set<Order>();
-        public DbSet<Employee> Employees => Set<Employee>();
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Employee> Employees { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Category> Categories { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<OrderDetail>()
+                .HasKey(od => new { od.OrderID, od.ProductID });
 
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Customer)
+                .WithMany()
+                .HasForeignKey(o => o.CustomerID);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Employee)
+                .WithMany()
+                .HasForeignKey(o => o.EmployeeID);
+        }
     }
 }

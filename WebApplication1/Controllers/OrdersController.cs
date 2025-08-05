@@ -4,7 +4,6 @@ using Northwind.Core.Entities;
 using Northwind.Data;
 using WebApplication1.Models;
 using WebApplication1.Models.Orders;
-using System.Globalization;
 
 namespace WebApplication1.Controllers
 {
@@ -19,8 +18,7 @@ namespace WebApplication1.Controllers
             _context = context;
         }
 
-        // GET: api/orders?search=abc&page=1&pageSize=10
-        // + startDate, endDate, country, city filtreleri eklendi
+        // GET: api/orders?search=abc&page=1&pageSize=10&startDate=2024-01-01&country=USA&city=Seattle
         [HttpGet]
         public async Task<ActionResult<PagedResult<OrderViewModel>>> GetOrders(
             [FromQuery] string? search = null,
@@ -36,32 +34,20 @@ namespace WebApplication1.Controllers
 
             var query = _context.Orders
                 .Include(o => o.Employee)
+                .Include(o => o.Customer)
+                .Include(o => o.OrderDetails)
                 .AsQueryable();
 
-            // Arama filtresi (CustomerID + EmployeeName)
+            // Arama filtresi (CustomerID, CustomerName, EmployeeName)
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var loweredSearch = search.Trim().ToLower();
 
                 query = query.Where(o =>
                     (o.CustomerID != null && o.CustomerID.Trim().ToLower().Contains(loweredSearch)) ||
+                    (o.Customer != null && o.Customer.ContactName != null && o.Customer.ContactName.ToLower().Contains(loweredSearch)) ||
                     (o.Employee != null && (o.Employee.FirstName + " " + o.Employee.LastName).ToLower().Contains(loweredSearch))
                 );
-
-                // DateTime? parsedDate = null;
-                //string[] formats = { "d.M.yyyy", "dd.MM.yyyy", "yyyy-MM-dd", "yyyy.MM.dd" };
-
-                // if (DateTime.TryParseExact(search, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var tempDate))
-                //     parsedDate = tempDate;
-                //  else if (DateTime.TryParse(search, out var fallbackDate))
-                //
-                // var loweredSearch = search.Trim().ToLower();
-
-                // query = query.Where(o =>
-                //    (o.CustomerID != null && o.CustomerID.Trim().ToLower().Contains(loweredSearch)) ||
-                //    (o.Employee != null && (o.Employee.FirstName + " " + o.Employee.LastName).ToLower().Contains(loweredSearch)) ||
-                //    (parsedDate != null && EF.Functions.DateDiffDay(o.OrderDate, parsedDate.Value) == 0)
-                //);
             }
 
             // Tarih aralığı filtresi
@@ -88,12 +74,17 @@ namespace WebApplication1.Controllers
                 {
                     OrderID = o.OrderID,
                     CustomerID = o.CustomerID,
+                    CustomerName = o.Customer != null ? o.Customer.ContactName : null,
                     EmployeeID = o.EmployeeID,
                     EmployeeName = o.Employee != null ? o.Employee.FirstName + " " + o.Employee.LastName : null,
                     OrderDate = o.OrderDate,
                     Freight = o.Freight,
                     ShipCity = o.ShipCity,
-                    ShipCountry = o.ShipCountry
+                    ShipCountry = o.ShipCountry,
+                    TotalAmount = (o.OrderDetails != null && o.OrderDetails.Any()
+                        ? o.OrderDetails.Sum(od =>
+                            (decimal)od.UnitPrice * od.Quantity * (1 - (decimal)od.Discount))
+                        : 0) + (o.Freight ?? 0)
                 })
                 .ToListAsync();
 
@@ -114,6 +105,8 @@ namespace WebApplication1.Controllers
         {
             var order = await _context.Orders
                 .Include(o => o.Employee)
+                .Include(o => o.Customer)
+                .Include(o => o.OrderDetails)
                 .FirstOrDefaultAsync(o => o.OrderID == id);
 
             if (order == null)
