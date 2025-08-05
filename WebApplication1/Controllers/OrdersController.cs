@@ -45,8 +45,10 @@ namespace WebApplication1.Controllers
 
                 query = query.Where(o =>
                     (o.CustomerID != null && o.CustomerID.Trim().ToLower().Contains(loweredSearch)) ||
-                    (o.Customer != null && o.Customer.ContactName != null && o.Customer.ContactName.ToLower().Contains(loweredSearch)) ||
-                    (o.Employee != null && (o.Employee.FirstName + " " + o.Employee.LastName).ToLower().Contains(loweredSearch))
+                    (o.Customer != null && o.Customer.ContactName != null &&
+                        o.Customer.ContactName.ToLower().Contains(loweredSearch)) ||
+                    (o.Employee != null &&
+                        (o.Employee.FirstName + " " + o.Employee.LastName).ToLower().Contains(loweredSearch))
                 );
             }
 
@@ -58,11 +60,13 @@ namespace WebApplication1.Controllers
 
             // Ülke filtresi
             if (!string.IsNullOrWhiteSpace(country))
-                query = query.Where(o => o.ShipCountry != null && o.ShipCountry.ToLower() == country.ToLower());
+                query = query.Where(o => o.ShipCountry != null &&
+                                         o.ShipCountry.ToLower() == country.ToLower());
 
             // Şehir filtresi
             if (!string.IsNullOrWhiteSpace(city))
-                query = query.Where(o => o.ShipCity != null && o.ShipCity.ToLower() == city.ToLower());
+                query = query.Where(o => o.ShipCity != null &&
+                                         o.ShipCity.ToLower() == city.ToLower());
 
             var totalCount = await query.CountAsync();
 
@@ -73,14 +77,17 @@ namespace WebApplication1.Controllers
                 .Select(o => new OrderViewModel
                 {
                     OrderID = o.OrderID,
-                    CustomerID = o.CustomerID,
-                    CustomerName = o.Customer != null ? o.Customer.ContactName : null,
+                    CustomerID = o.CustomerID ?? string.Empty,
+
+                    CustomerName = o.Customer != null ? o.Customer.ContactName : string.Empty,
                     EmployeeID = o.EmployeeID,
-                    EmployeeName = o.Employee != null ? o.Employee.FirstName + " " + o.Employee.LastName : null,
+                    EmployeeName = o.Employee != null
+                        ? o.Employee.FirstName + " " + o.Employee.LastName
+                        : string.Empty,
                     OrderDate = o.OrderDate,
                     Freight = o.Freight,
-                    ShipCity = o.ShipCity,
-                    ShipCountry = o.ShipCountry,
+                    ShipCity = o.ShipCity ?? string.Empty,
+                    ShipCountry = o.ShipCountry ?? string.Empty,
                     TotalAmount = (o.OrderDetails != null && o.OrderDetails.Any()
                         ? o.OrderDetails.Sum(od =>
                             (decimal)od.UnitPrice * od.Quantity * (1 - (decimal)od.Discount))
@@ -101,18 +108,51 @@ namespace WebApplication1.Controllers
 
         // GET: api/orders/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Order>> GetOrderById(int id)
+        public async Task<ActionResult<OrderViewModel>> GetOrderById(int id)
         {
             var order = await _context.Orders
                 .Include(o => o.Employee)
                 .Include(o => o.Customer)
                 .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Product)
                 .FirstOrDefaultAsync(o => o.OrderID == id);
 
             if (order == null)
                 return NotFound();
 
-            return Ok(order);
+            var vm = new OrderViewModel
+            {
+                OrderID = order.OrderID,
+                CustomerID = order.CustomerID ?? string.Empty,
+                
+                CustomerName = order.Customer != null ? order.Customer.ContactName : string.Empty,
+                EmployeeID = order.EmployeeID,
+                EmployeeName = order.Employee != null
+                    ? order.Employee.FirstName + " " + order.Employee.LastName
+                    : string.Empty,
+                OrderDate = order.OrderDate,
+                RequiredDate = order.RequiredDate,
+                ShippedDate = order.ShippedDate,
+                ShipCity = order.ShipCity ?? string.Empty,
+                ShipCountry = order.ShipCountry ?? string.Empty,
+                Freight = order.Freight,
+                TotalAmount = (order.OrderDetails != null && order.OrderDetails.Any()
+                    ? order.OrderDetails.Sum(od =>
+                        (decimal)od.UnitPrice * od.Quantity * (1 - (decimal)od.Discount))
+                    : 0) + (order.Freight ?? 0),
+
+                OrderDetails = order.OrderDetails.Select(od => new OrderDetailItem
+                {
+                    ProductID = od.ProductID,
+                    
+                    ProductName = od.Product != null ? od.Product.ProductName : string.Empty,
+                    UnitPrice = od.UnitPrice,
+                    Quantity = od.Quantity,
+                    Discount = od.Discount
+                }).ToList()
+            };
+
+            return Ok(vm);
         }
 
         // POST: api/orders

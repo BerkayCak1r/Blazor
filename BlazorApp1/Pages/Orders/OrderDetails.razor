@@ -1,0 +1,67 @@
+﻿@page "/orderdetails/{id:int}"
+@inject BlazorApp1.Services.OrderService OrderService
+@using BlazorApp1.ViewModels
+
+<h3>Sipariş Detayları</h3>
+
+@if (isLoading)
+{
+    <p>Yükleniyor...</p>
+}
+else if (order == null)
+{
+    <p class="text-danger">Sipariş bulunamadı.</p>
+}
+else
+{
+    <div class="mb-3">
+        <p><strong>Sipariş ID:</strong> @order.OrderID</p>
+        <p><strong>Müşteri:</strong> @order.CustomerName (@order.CustomerID)</p>
+        <p><strong>Çalışan:</strong> @order.EmployeeName</p>
+        <p><strong>Sipariş Tarihi:</strong> @order.OrderDate?.ToShortDateString()</p>
+        <p><strong>Gerekli Tarih:</strong> @order.RequiredDate?.ToShortDateString()</p>
+        <p><strong>Kargolandığı Tarih:</strong> @order.ShippedDate?.ToShortDateString()</p>
+        <p><strong>Ülke:</strong> @order.ShipCountry</p>
+        <p><strong>Şehir:</strong> @order.ShipCity</p>
+        <p><strong>Toplam Tutar:</strong> @order.TotalAmount.ToString("C")</p>
+    </div>
+
+    <h5>Ürünler</h5>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Ürün ID</th>
+                <th>Ürün Adı</th>
+                <th>Birim Fiyat</th>
+                <th>Adet</th>
+                <th>İndirim</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in order.OrderDetails)
+            {
+                <tr>
+                    <td>@item.ProductID</td>
+                    <td>@item.ProductName</td>
+                    <td>@item.UnitPrice.ToString("C")</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Discount:P</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter] public int id { get; set; }
+    OrderViewModel? order;
+    bool isLoading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Console.WriteLine($"[OrderDetails] Yüklenen id: {id}");
+        isLoading = true;
+        order = await OrderService.GetOrderByIdAsync(id);
+        isLoading = false;
+    }
+}

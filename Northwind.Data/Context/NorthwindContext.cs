@@ -20,17 +20,32 @@ namespace Northwind.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<OrderDetail>()
+                .ToTable("Order Details");
+
+            modelBuilder.Entity<OrderDetail>()
                 .HasKey(od => new { od.OrderID, od.ProductID });
 
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.Customer)
-                .WithMany()
-                .HasForeignKey(o => o.CustomerID);
+                .WithMany(c => c.Orders)
+                .HasForeignKey(o => o.CustomerID)
+                .HasPrincipalKey(c => c.CustomerID);
 
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.Employee)
+                .WithMany(e => e.Orders)
+                .HasForeignKey(o => o.EmployeeID)
+                .HasPrincipalKey(e => e.EmployeeID);
+         
+            modelBuilder.Entity<OrderDetail>()
+                .HasOne(od => od.Order)
+                .WithMany(o => o.OrderDetails)
+                .HasForeignKey(od => od.OrderID);
+            
+            modelBuilder.Entity<OrderDetail>()
+                .HasOne(od => od.Product)
                 .WithMany()
-                .HasForeignKey(o => o.EmployeeID);
+                .HasForeignKey(od => od.ProductID);
         }
     }
 }

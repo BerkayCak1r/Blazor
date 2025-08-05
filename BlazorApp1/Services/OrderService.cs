@@ -12,6 +12,20 @@ namespace BlazorApp1.Services
             _httpClient = httpClient;
         }
 
+        public async Task<OrderViewModel?> GetOrderByIdAsync(int id)
+        {
+            try
+            {
+                var result = await _httpClient.GetFromJsonAsync<OrderViewModel>($"api/orders/{id}");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[OrderService] GetOrderByIdAsync hata: {ex.Message}");
+                return null;
+            }
+        }
+
         public async Task<PagedResult<OrderViewModel>> GetOrdersAsync(
             int page, int pageSize,
             string? search = null,
@@ -33,8 +47,16 @@ namespace BlazorApp1.Services
             if (!string.IsNullOrWhiteSpace(city))
                 query += $"&city={Uri.EscapeDataString(city)}";
 
-            var response = await _httpClient.GetFromJsonAsync<PagedResult<OrderViewModel>>(query);
-            return response ?? new PagedResult<OrderViewModel>();
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<PagedResult<OrderViewModel>>(query);
+                return response ?? new PagedResult<OrderViewModel>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[OrderService] GetOrdersAsync hata: {ex.Message}");
+                return new PagedResult<OrderViewModel>();
+            }
         }
     }
 }

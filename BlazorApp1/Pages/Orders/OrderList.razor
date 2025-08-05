@@ -45,7 +45,6 @@ else
                 <th>Tarih</th>
                 <th>Ülke</th>
                 <th>Şehir</th>
-                <th>Kargo Ücreti</th>
                 <th>Toplam Tutar</th>
             </tr>
         </thead>
@@ -53,13 +52,17 @@ else
             @foreach (var order in orders.Items)
             {
                 <tr>
-                    <td>@order.OrderID</td>
+                    <td>
+                        <a href="@($"/orderdetails/{order.OrderID}")" class="text-primary">
+                            @order.OrderID
+                        </a>
+                    </td>
+
                     <td>@(order.CustomerName ?? "-")</td>
                     <td>@(order.EmployeeName ?? "-")</td>
                     <td>@order.OrderDate?.ToShortDateString()</td>
                     <td>@order.ShipCountry</td>
                     <td>@order.ShipCity</td>
-                    <td>@(order.Freight?.ToString("C") ?? "₺0,00")</td>
                     <td>@(order.TotalAmount.ToString("C"))</td>
                 </tr>
             }
