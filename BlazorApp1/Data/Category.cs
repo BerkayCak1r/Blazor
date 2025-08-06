@@ -7,6 +7,7 @@ namespace BlazorApp1.Data
         [Key]
         public int CategoryID { get; set; }
 
+
         public string CategoryName { get; set; } = string.Empty;
     }
 }

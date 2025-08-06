@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Northwind.Core.Entities;
+using Northwind.Data.Configurations;
 
 namespace Northwind.Data
 {
@@ -46,6 +47,8 @@ namespace Northwind.Data
                 .HasOne(od => od.Product)
                 .WithMany()
                 .HasForeignKey(od => od.ProductID);
+
+            modelBuilder.ApplyConfiguration(new CategoryConfiguration());
         }
     }
 }
