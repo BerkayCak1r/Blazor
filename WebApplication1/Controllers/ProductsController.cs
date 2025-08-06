@@ -20,16 +20,26 @@ namespace WebApplication1.Controllers
 
         // GET: api/products
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<ProductViewModel>>> GetProducts()//ProductViewModel ile döndürüyoruz ki ImageUrl ve CategoryName gibi ekstra alanlar da gelsin
         {
             return await _context.Products
                 .Include(p => p.Category)
+                .Select(p => new ProductViewModel
+                {
+                    ProductID = p.ProductID,
+                    ProductName = p.ProductName,
+                    UnitPrice = p.UnitPrice,
+                    UnitsInStock = p.UnitsInStock,
+                    CategoryID = p.CategoryID,
+                    CategoryName = p.Category != null ? p.Category.CategoryName : null,
+                    ImageUrl = p.ImageUrl
+                })
                 .ToListAsync();
         }
 
         // GET: api/products/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ServiceResponse<Product>>> GetProduct(int id)
+        public async Task<ActionResult<ServiceResponse<ProductViewModel>>> GetProduct(int id)
         {
             if (id <= 0)
             {

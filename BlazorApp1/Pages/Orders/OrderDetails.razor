@@ -1,5 +1,6 @@
 ﻿@page "/orderdetails/{id:int}"
 @inject BlazorApp1.Services.OrderService OrderService
+@using BlazorApp1.Components
 @using BlazorApp1.ViewModels
 
 <h3>Sipariş Detayları</h3>
@@ -14,16 +15,21 @@ else if (order == null)
 }
 else
 {
-    <div class="mb-3">
-        <p><strong>Sipariş ID:</strong> @order.OrderID</p>
-        <p><strong>Müşteri:</strong> @order.CustomerName (@order.CustomerID)</p>
-        <p><strong>Çalışan:</strong> @order.EmployeeName</p>
-        <p><strong>Sipariş Tarihi:</strong> @order.OrderDate?.ToShortDateString()</p>
-        <p><strong>Gerekli Tarih:</strong> @order.RequiredDate?.ToShortDateString()</p>
-        <p><strong>Ülke:</strong> @order.ShipCountry</p>
-        <p><strong>Şehir:</strong> @order.ShipCity</p>
-        <p><strong>Toplam Tutar:</strong> @order.TotalAmount.ToString("C")</p>
+    <div class="row mb-3">
+        <div class="col-12 col-md-6 col-lg-6">
+            <p><strong>Sipariş ID:</strong> @order.OrderID</p>
+            <p><strong>Müşteri:</strong> @order.CustomerName (@order.CustomerID)</p>
+            <p><strong>Çalışan:</strong> @order.EmployeeName</p>
+            <p><strong>Sipariş Tarihi:</strong> @order.OrderDate?.ToShortDateString()</p>
+        </div>
+        <div class="col-12 col-md-6 col-lg-6">
+            <p><strong>Gerekli Tarih:</strong> @order.RequiredDate?.ToShortDateString()</p>
+            <p><strong>Ülke:</strong> @order.ShipCountry</p>
+            <p><strong>Şehir:</strong> @order.ShipCity</p>
+            <p><strong>Toplam Tutar:</strong> @order.TotalAmount.ToString("C")</p>
+        </div>
     </div>
+
 
     <h5>Ürünler</h5>
 
@@ -37,6 +43,7 @@ else
         <thead>
             <tr>
                 <th>Ürün ID</th>
+                <th>Resim</th>
                 <th>Ürün Adı</th>
                 <th>Birim Fiyat</th>
                 <th>Adet</th>
@@ -49,6 +56,9 @@ else
             {
                 <tr>
                     <td>@item.ProductID</td>
+                    <td>
+                        <ProductImage ImageUrl="@item.ImageUrl" />
+                    </td>
                     <td>@item.ProductName</td>
                     <td>@item.UnitPrice.ToString("C")</td>
                     <td>@item.Quantity</td>

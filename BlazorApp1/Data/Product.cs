@@ -19,5 +19,7 @@ namespace BlazorApp1.Data
 
         public int? CategoryID { get; set; }
         public Category? Category { get; set; }
+
+        public string? ImageUrl { get; set; }
     }
 }

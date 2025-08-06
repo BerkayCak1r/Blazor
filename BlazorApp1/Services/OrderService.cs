@@ -3,6 +3,9 @@ using BlazorApp1.ViewModels;
 
 namespace BlazorApp1.Services
 {
+    /// <summary>
+    /// rest client: refit restsharp
+    /// </summary>
     public class OrderService
     {
         private readonly HttpClient _httpClient;

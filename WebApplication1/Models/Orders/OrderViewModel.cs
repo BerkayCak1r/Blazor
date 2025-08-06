@@ -6,7 +6,8 @@
         public string ProductName { get; set; } = string.Empty;
         public decimal UnitPrice { get; set; }       
         public short Quantity { get; set; }           
-        public float Discount { get; set; }           
+        public float Discount { get; set; }
+        public string? ImageUrl { get; set; }
     }
 
     public class OrderViewModel

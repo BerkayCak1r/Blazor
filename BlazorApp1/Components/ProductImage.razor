@@ -1,0 +1,90 @@
+﻿@using Microsoft.AspNetCore.Components
+
+<div class="product-image-container">
+    <img src="@DisplayUrl"
+         class="product-thumbnail"
+         @onclick="ShowModal"
+         alt="Product Image" />
+
+    @if (isModalOpen)
+    {
+        <div class="modal-backdrop" @onclick="CloseModal">
+            <div class="modal-content" @onclick:stopPropagation>
+                <img src="@DisplayUrl" class="modal-image" alt="Product Image" />
+                <button class="btn btn-danger close-btn" @onclick="CloseModal">Kapat</button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string? ImageUrl { get; set; }
+
+    private bool isModalOpen = false;
+
+    // Gösterilecek URL (boşsa placeholder)
+    private string DisplayUrl => !string.IsNullOrWhiteSpace(ImageUrl)
+        ? ImageUrl
+        : "/images/no-image.png";
+
+    private void ShowModal()
+    {
+        isModalOpen = true;
+    }
+
+    private void CloseModal()
+    {
+        isModalOpen = false;
+    }
+}
+
+<style>
+    /* Liste görünümünde küçük resim */
+    .product-thumbnail {
+        height: 60px; /* 📌 Küçük boy */
+        width: auto;
+        cursor: pointer;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        object-fit: contain;
+        background-color: #fff;
+    }
+
+    /* Modal arkaplan */
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1050;
+    }
+
+    /* Modal içeriği */
+    .modal-content {
+        background: white;
+        padding: 15px;
+        border-radius: 5px;
+        text-align: center;
+        max-width: 500px; /* 📌 Maksimum genişlik */
+        box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    }
+
+    /* Modal içindeki resim */
+    .modal-image {
+        max-width: 100%; /* 📌 Genişliği modal boyuna uyar */
+        max-height: 70vh; /* 📌 Yükseklik sınırı */
+        display: block;
+        margin: 0 auto;
+    }
+
+    /* Kapat butonu */
+    .close-btn {
+        margin-top: 10px;
+        font-size: 14px;
+    }
+</style>

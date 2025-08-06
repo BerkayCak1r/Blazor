@@ -3,6 +3,7 @@
 <table class="table">
     <thead>
         <tr>
+            <th>Resim</th>
             <th>Ad</th>
             <th>Fiyat</th>
             <th>Stok</th>
@@ -14,6 +15,9 @@
         @foreach (var item in Products)
         {
             <tr>
+                <td>
+                    <ProductImage ImageUrl="@item.ImageUrl" />
+                </td>
                 <td>@item.ProductName</td>
                 <td>@item.UnitPrice</td>
                 <td>@item.UnitsInStock</td>

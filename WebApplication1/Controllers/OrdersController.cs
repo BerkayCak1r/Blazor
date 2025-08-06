@@ -92,6 +92,7 @@ namespace WebApplication1.Controllers
                         ? o.OrderDetails.Sum(od =>
                             (decimal)od.UnitPrice * od.Quantity * (1 - (decimal)od.Discount))
                         : 0) + (o.Freight ?? 0)
+
                 })
                 .ToListAsync();
 
@@ -125,10 +126,10 @@ namespace WebApplication1.Controllers
                 OrderID = order.OrderID,
                 CustomerID = order.CustomerID ?? string.Empty,
                 
-                CustomerName = order.Customer != null ? order.Customer.ContactName : string.Empty,
+                CustomerName = order.Customer?.ContactName ?? string.Empty,
                 EmployeeID = order.EmployeeID,
                 EmployeeName = order.Employee != null
-                    ? order.Employee.FirstName + " " + order.Employee.LastName
+                    ? $"{order.Employee.FirstName} {order.Employee.LastName}"
                     : string.Empty,
                 OrderDate = order.OrderDate,
                 RequiredDate = order.RequiredDate,
@@ -148,7 +149,9 @@ namespace WebApplication1.Controllers
                     ProductName = od.Product != null ? od.Product.ProductName : string.Empty,
                     UnitPrice = od.UnitPrice,
                     Quantity = od.Quantity,
-                    Discount = od.Discount
+                    Discount = od.Discount,
+                    ImageUrl = od.Product != null ? od.Product.ImageUrl : null
+
                 }).ToList()
             };
 
