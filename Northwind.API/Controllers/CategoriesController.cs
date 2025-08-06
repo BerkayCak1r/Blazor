@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-//using WebApplication1.Data; // ← NorthwindContext burada
-//using WebApplication1.Models; // ← Category modeli burada
+//using Northwind.API.Data; // ← NorthwindContext burada
+//using Northwind.API.Models; // ← Category modeli burada
 using Northwind.Core.Entities;
 using Northwind.Data;
 
 
-namespace WebApplication1.Controllers
+namespace Northwind.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -25,5 +25,5 @@ namespace WebApplication1.Controllers
         {
             return await _context.Categories.ToListAsync();
         }
-    }
+  }
 }

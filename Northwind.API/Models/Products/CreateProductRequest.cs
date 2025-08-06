@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebApplication1.Models.Products
+namespace Northwind.API.Models.Products
 {
     public class CreateProductRequest
     {

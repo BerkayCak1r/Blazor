@@ -1,4 +1,4 @@
-﻿namespace WebApplication1.Models.Orders
+﻿namespace Northwind.API.Models.Orders
 {
     public class OrderDetailItem
     {

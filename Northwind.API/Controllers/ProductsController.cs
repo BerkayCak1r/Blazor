@@ -2,10 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Northwind.Core.Entities;
 using Northwind.Data;
-using WebApplication1.Models;
-using WebApplication1.Models.Products;
+using Northwind.API.Models;
+using Northwind.API.Models.Products;
 
-namespace WebApplication1.Controllers
+namespace Northwind.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
